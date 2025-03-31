@@ -1,19 +1,19 @@
 {
-  "name": "goit-node-cli",
+  "name": "goit-node-rest-api",
   "version": "1.0.0",
   "description": "",
-  "homepage": "https://github.com/yana-shapka/goit-node-cli#readme",
+  "homepage": "https://github.com/yana-shapka/goit-node-rest-api#",
   "bugs": {
-    "url": "https://github.com/yana-shapka/goit-node-cli/issues"
+    "url": "https://github.com/yana-shapka/goit-node-rest-api/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yana-shapka/goit-node-cli.git"
+    "url": "git+https://github.com/yana-shapka/goit-node-rest-api.git"
   },
   "license": "ISC",
   "author": "Yana Shapka <yana.shapka.test@gmail.com>",
   "type": "module",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index",
@@ -21,6 +21,10 @@
   },
   "dependencies": {
     "commander": "^13.1.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
+    "morgan": "^1.10.0",
     "nanoid": "^5.1.5"
   },
   "devDependencies": {
