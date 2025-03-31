@@ -1,0 +1,29 @@
+{
+  "name": "goit-node-cli",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/yana-shapka/goit-node-cli#readme",
+  "bugs": {
+    "url": "https://github.com/yana-shapka/goit-node-cli/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yana-shapka/goit-node-cli.git"
+  },
+  "license": "ISC",
+  "author": "Yana Shapka <yana.shapka.test@gmail.com>",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index",
+    "dev": "nodemon src/index"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "nanoid": "^5.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
