@@ -30,19 +30,26 @@ export const getOneContact = async (req, res) => {
 };
 
 export const deleteContact = async (req, res) => {
-  const { id } = req.params;
+  const {id} = req.params;
   const deletedContact = await contactsServices.removeContact(id);
 
   if (!deletedContact) {
-    throw httpError(404, "Not found");
+    throw httpError(404, 'Not found');
   }
 
   res.status(200).json(deletedContact);
 };
-export const createContact = async (req, res) => {
-  const newContact = await contactsServices.addContact(req.body);
-  res.status(201).json(newContact);
-};
+
+export async function createContact(req, res, next) {
+  try {
+    const {name, email, phone, favorite} = req.body;
+
+    const newContact = await contactsServices.addContact({ name, email, phone, favorite });
+    res.status(201).json(newContact);
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const updateContact = async (req, res) => {
   const {id} = req.params;
@@ -55,10 +62,24 @@ export const updateContact = async (req, res) => {
   res.json(data);
 };
 
+export const updateFavorite = async (req, res) => {
+  const { id } = req.params;
+  const { favorite } = req.body;
+
+  const updated = await contactsServices.updateStatusContact(id, { favorite });
+
+  if (!updated) {
+    throw httpError(404, 'Not found');
+  }
+
+  res.json(updated);
+};
+
 export default {
   getAllContacts: ctrlWrapper(getAllContacts),
   getOneContact: ctrlWrapper(getOneContact),
   createContact: ctrlWrapper(createContact),
   updateContact: ctrlWrapper(updateContact),
   deleteContact: ctrlWrapper(deleteContact),
+  updateFavorite: ctrlWrapper(updateFavorite),
 };
