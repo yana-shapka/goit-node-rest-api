@@ -2,17 +2,7 @@ import * as contactsServices from '../services/contactsServices.js';
 
 import httpError from '../helpers/httpError.js';
 
-const ctrlWrapper = ctrl => {
-  const func = async (req, res, next) => {
-    try {
-      await ctrl(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  return func;
-};
+import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 export const getAllContacts = async (req, res) => {
   const data = await contactsServices.listContacts();
