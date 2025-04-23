@@ -1,6 +1,7 @@
 import * as authServices from '../services/authServices.js';
 
 import ctrlWrapper from '../decorators/ctrlWrapper.js';
+import httpError from '../helpers/httpError.js';
 
 import {generateAvatarFilePath} from '../constants/avatarName.js';
 
@@ -64,6 +65,10 @@ const updateSubscriptionController = async (req, res) => {
 const avatarsDir = path.resolve('public/avatars');
 
 export const updateAvatarController = async (req, res) => {
+  if (!req.file) {
+    throw httpError(400, 'Avatar file is required');
+  }
+
   const {path: tempUpload} = req.file;
   const {email, id} = req.user;
 
