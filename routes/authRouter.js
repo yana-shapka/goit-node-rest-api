@@ -8,6 +8,7 @@ import validateBody from '../decorators/validateBody.js';
 
 import {
   authRegisterSchema,
+  authVerifySchema,
   authLoginSchema,
   subscriptionSchema,
 } from '../schemas/authSchemas.js';
@@ -20,6 +21,14 @@ authRouter.post(
   '/register',
   validateBody(authRegisterSchema),
   authControllers.registerController
+);
+
+authRouter.get('/verify/:verificationToken', authControllers.verifyController);
+
+authRouter.post(
+  '/verify',
+  validateBody(authVerifySchema),
+  authControllers.resendVerifyEmailController
 );
 
 authRouter.post(

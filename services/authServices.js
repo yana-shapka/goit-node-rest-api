@@ -3,21 +3,29 @@ import gravatar from 'gravatar';
 import axios from 'axios';
 import fs from 'fs/promises';
 import path from 'path';
-
+import {nanoid} from 'nanoid';
 
 import User from '../db/models/user.js';
 
 import httpError from '../helpers/httpError.js';
 
 import {generateToken} from '../helpers/jwt.js';
+import sendEmail from '../helpers/sendEmail.js';
 
-const avatarsDir = path.resolve('public', 'avatars');
-import { generateAvatarFilePath } from '../constants/avatarName.js';
+import {generateAvatarFilePath} from '../constants/avatarName.js';
+
+const {APP_DOMAIN} = process.env;
 
 export const findUser = query =>
   User.findOne({
     where: query,
   });
+
+const createVerifyEmail = (email, verificationToken) => ({
+  to: email,
+  subject: 'Verify email',
+  html: `<a href="${APP_DOMAIN}/api/auth/verify/${verificationToken}" target="_blank">Verify email</a>`,
+});
 
 export const registerUser = async data => {
   const {email, password} = data;
@@ -32,18 +40,51 @@ export const registerUser = async data => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
-  const gravatarURL = gravatar.url(email, { s: '250', d: 'retro' }, true);
 
-  const response = await axios.get(gravatarURL, { responseType: 'arraybuffer' });
+  const verificationToken = nanoid();
+  const gravatarURL = gravatar.url(email, {s: '250', d: 'retro'}, true);
 
-  const { fileName, filePath } = generateAvatarFilePath(email);
-  
+  const response = await axios.get(gravatarURL, {responseType: 'arraybuffer'});
+
+  const {fileName, filePath} = generateAvatarFilePath(email);
+
   await fs.writeFile(filePath, response.data);
 
   const avatarURL = `/avatars/${fileName}`;
 
-  return User.create({...data, password: hashPassword, avatarURL,});
+  const verifyEmail = createVerifyEmail(email, verificationToken);
 
+  await sendEmail(verifyEmail);
+
+  return User.create({
+    ...data,
+    password: hashPassword,
+    avatarURL,
+    verificationToken,
+  });
+};
+
+export const verifyUser = async verificationToken => {
+  const user = await findUser({verificationToken});
+  if (!user) {
+    throw httpError(404, 'User not found');
+  }
+
+  await user.update({verificationToken: null, verify: true});
+};
+
+export const resendVerifyEmail = async email => {
+  const user = await findUser({email});
+  if (!user) {
+    throw httpError(404, 'Email not found');
+  }
+  if (user.verify) {
+    throw httpError(400, 'Verification has already been passed');
+  }
+
+  const verifyEmail = createVerifyEmail(email, user.verificationToken);
+
+  await sendEmail(verifyEmail);
 };
 
 export const loginUser = async data => {
@@ -56,6 +97,10 @@ export const loginUser = async data => {
 
   if (!user) {
     throw httpError(401, 'Email or password is wrong');
+  }
+
+  if (!user.verify) {
+    throw httpError(401, 'Email not verified');
   }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
@@ -95,9 +140,9 @@ export const updateUserSubscription = async (id, subscription) => {
 };
 
 export const updateUserAvatar = async (id, avatarURL) => {
-    const user = await User.findByPk(id);
-    if (!user) throw httpError(404, "User not found");
-  
-    await user.update({ avatarURL });
-    return user;
-  };
+  const user = await User.findByPk(id);
+  if (!user) throw httpError(404, 'User not found');
+
+  await user.update({avatarURL});
+  return user;
+};

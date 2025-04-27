@@ -16,15 +16,15 @@ const sequelize = new Sequelize({
 });
 
 async function connectToDB() {
-    try {
-      await sequelize.authenticate();
-      console.log('Database connection successful');
-    } catch (error) {
-      console.error(`Error connecting to database: ${error.message}`);
-      process.exit(1);
-    }
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection successful');
+  } catch (error) {
+    console.error(`Error connecting to database: ${error.message}`);
+    process.exit(1);
   }
-  
-  connectToDB();
+}
+
+connectToDB();
 
 export default sequelize;
